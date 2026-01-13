@@ -1,16 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Futuristic Planet View</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
     <style>
-      body { margin: 0; padding: 0; overflow: hidden; background-color: #000; }
-      canvas { display: block; }
+        /* Body must be transparent for the canvas to show through */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            background-color: transparent; 
+        }
+        canvas { 
+            display: block; 
+        }
     </style>
-  </head>
-  <body>
-    <script src="sketch.js"></script>
-  </body>
+</head>
+<body>
+    <script>
+        let planetImg;
+        let angle = 0;
+        // Calculation for 3-hour rotation at 60fps
+        const rotationSpeed = (Math.PI * 2) / (3 * 60 * 60 * 60); 
+
+        function preload() {
+            // Loading the image - ensure planet.png is in the same folder
+            planetImg = loadImage('planet.png', 
+                () => console.log("Planet loaded"), 
+                () => console.error("Planet image failed to load - using fallback color")
+            );
+        }
+
+        function setup() {
+            // Enable transparency in the WebGL context
+            setAttributes('alpha', true);
+            createCanvas(windowWidth, windowHeight, WEBGL);
+        }
+
+        function draw() {
+            // clear() is essential for a truly transparent background in p5.js
+            clear(); 
+
+            // Cinematic Lighting
+            ambientLight(60);
+            // Soft purple/blue point light for a futuristic feel
+            pointLight(200, 150, 255, -500, -500, 500);
+            // Subtle white light from the opposite side
+            pointLight(100, 100, 100, 500, 500, 200);
+
+            // Planet Rotation and Rendering
+            push();
+            rotateY(angle);
+            noStroke();
+
+            // Prevention of "blinking": Only apply texture if the image is valid and loaded
+            if (planetImg && planetImg.width > 1) {
+                texture(planetImg);
+            } else {
+                // Fallback material so the sphere is visible even if the image fails
+                specularMaterial(30, 60, 100);
+                shininess(10);
+            }
+
+            sphere(250, 64, 64);
+            pop();
+
+            // Increment rotation
+            angle += rotationSpeed;
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
 </html>
